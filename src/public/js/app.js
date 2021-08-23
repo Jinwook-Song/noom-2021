@@ -14,6 +14,7 @@ fSocket.addEventListener("close", () => {
   console.log("Disconnected from the Server ❌");
 });
 
+// Send message from Frontend to Backend
 setTimeout(() => {
   fSocket.send("Hello from the browser!");
 }, 3000);

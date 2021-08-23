@@ -17,12 +17,14 @@ const handleListen = () => console.log(`Listening on http://localhost:3000 ✅`)
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
+// listening who connected
 wss.on("connection", (bSocket) => {
   console.log("Connected to the Browser ✅");
   bSocket.on("close", () => console.log("Disconnected from the Browser ❌"));
   bSocket.on("message", (msg) => {
     console.log(msg.toString());
   });
+  // Send message from Backend to Frontend
   bSocket.send("Hello!!!");
 });
 
