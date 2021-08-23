@@ -1,4 +1,7 @@
 // Frontend
+
+const messageList = document.querySelector("ul");
+const messageForm = document.querySelector("form");
 // Connect to the backend
 const fSocket = new WebSocket(`ws://${window.location.host}`);
 
@@ -7,14 +10,18 @@ fSocket.addEventListener("open", () => {
 });
 
 fSocket.addEventListener("message", (msg) => {
-  console.log("New message:", msg.data, "from the server");
+  console.log("New message:", msg.data);
 });
 
 fSocket.addEventListener("close", () => {
   console.log("Disconnected from the Server ❌");
 });
 
-// Send message from Frontend to Backend
-setTimeout(() => {
-  fSocket.send("Hello from the browser!");
-}, 3000);
+const handleSubmit = (event) => {
+  event.preventDefault();
+  const input = messageForm.querySelector("input");
+  fSocket.send(input.value);
+  input.value = "";
+};
+
+messageForm.addEventListener("submit", handleSubmit);

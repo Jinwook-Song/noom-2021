@@ -1,4 +1,5 @@
 // Backend
+
 import http from "http";
 import WebSocket from "ws";
 import express from "express";
@@ -17,15 +18,17 @@ const handleListen = () => console.log(`Listening on http://localhost:3000 ✅`)
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
+// fake DB
+const sockets = [];
+
 // listening who connected
 wss.on("connection", (bSocket) => {
+  sockets.push(bSocket);
   console.log("Connected to the Browser ✅");
   bSocket.on("close", () => console.log("Disconnected from the Browser ❌"));
   bSocket.on("message", (msg) => {
-    console.log(msg.toString());
+    sockets.forEach((bSocket) => bSocket.send(msg.toString()));
   });
-  // Send message from Backend to Frontend
-  bSocket.send("Hello!!!");
 });
 
 server.listen(3000, handleListen);
