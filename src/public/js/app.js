@@ -1,2 +1,2 @@
 // Frontend
-alert("hi");
+const fSocket = new WebSocket(`ws://${window.location.host}`);
