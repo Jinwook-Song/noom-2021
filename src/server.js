@@ -25,6 +25,13 @@ wsServer.on("connection", (bSocket) => {
     done();
     bSocket.to(roomName).emit("welcome");
   });
+  bSocket.on("disconnecting", () => {
+    bSocket.rooms.forEach((room) => bSocket.to(room).emit("bye"));
+  });
+  bSocket.on("new_message", (msg, roomName, done) => {
+    bSocket.to(roomName).emit("new_message", msg);
+    done();
+  });
 });
 
 // fake DB
