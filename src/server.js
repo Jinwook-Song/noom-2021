@@ -19,8 +19,9 @@ const wsServer = SocketIO(httpServer);
 wsServer.on("connection", (bSocket) => {
   bSocket.on("enter_room", (msg, done) => {
     console.log(msg);
+    // If the last arg is function, it is implemented on frontend
     setTimeout(() => {
-      done();
+      done("hello from the backend");
     }, 5000);
   });
 });
