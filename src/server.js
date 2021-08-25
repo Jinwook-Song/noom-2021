@@ -17,7 +17,12 @@ const httpServer = http.createServer(app);
 const wsServer = SocketIO(httpServer);
 
 wsServer.on("connection", (bSocket) => {
-  console.log(bSocket);
+  bSocket.on("enter_room", (msg, done) => {
+    console.log(msg);
+    setTimeout(() => {
+      done();
+    }, 5000);
+  });
 });
 
 // fake DB
