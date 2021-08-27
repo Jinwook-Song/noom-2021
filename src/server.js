@@ -34,18 +34,21 @@ function publicRooms() {
 wsServer.on("connection", (bSocket) => {
   bSocket["nickname"] = "Anonymous";
   bSocket.onAny((event) => {
-    console.log(publicRooms());
     console.log(`Socket Event: ${event}`);
   });
   bSocket.on("enter_room", (roomName, done) => {
     bSocket.join(roomName);
     done();
     bSocket.to(roomName).emit("welcome", bSocket.nickname);
+    wsServer.sockets.emit("room_change", publicRooms());
   });
   bSocket.on("disconnecting", () => {
     bSocket.rooms.forEach((room) =>
       bSocket.to(room).emit("bye", bSocket.nickname)
     );
+  });
+  bSocket.on("disconnect", () => {
+    wsServer.sockets.emit("room_change", publicRooms());
   });
   bSocket.on("new_message", (msg, roomName, done) => {
     bSocket.to(roomName).emit("new_message", `${bSocket.nickname}: ${msg}`);

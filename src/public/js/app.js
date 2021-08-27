@@ -67,3 +67,17 @@ fSocket.on("bye", (user) => {
 });
 
 fSocket.on("new_message", addMessage);
+
+fSocket.on("room_change", (rooms) => {
+  const roomList = welcome.querySelector("ul");
+  roomList.innerText = "";
+  if (rooms.length === 0) {
+    roomList.innerText = "";
+    return;
+  }
+  rooms.forEach((room) => {
+    const li = document.createElement("li");
+    li.innerHTML = room;
+    roomList.append(li);
+  });
+});
