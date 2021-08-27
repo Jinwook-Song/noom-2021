@@ -16,9 +16,25 @@ app.get("/*", (req, res) => res.redirect("/"));
 const httpServer = http.createServer(app);
 const wsServer = SocketIO(httpServer);
 
+function publicRooms() {
+  const {
+    sockets: {
+      adapter: { sids, rooms },
+    },
+  } = wsServer;
+  const publicRooms = [];
+  rooms.forEach((_, key) => {
+    if (sids.get(key) === undefined) {
+      publicRooms.push(key);
+    }
+  });
+  return publicRooms;
+}
+
 wsServer.on("connection", (bSocket) => {
   bSocket["nickname"] = "Anonymous";
   bSocket.onAny((event) => {
+    console.log(publicRooms());
     console.log(`Socket Event: ${event}`);
   });
   bSocket.on("enter_room", (roomName, done) => {
@@ -64,5 +80,5 @@ const sockets = [];
 //   });
 // });
 
-const handleListen = () => console.log(`Listening on http://localhost:3000 ✅`);
-httpServer.listen(3000, handleListen);
+const handleListen = () => console.log(`Listening on http://localhost:4000 ✅`);
+httpServer.listen(4000, handleListen);
