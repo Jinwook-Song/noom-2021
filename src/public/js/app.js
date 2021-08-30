@@ -58,12 +58,16 @@ const handleRoomSubmit = (event) => {
 
 form.addEventListener("submit", handleRoomSubmit);
 
-fSocket.on("welcome", (user) => {
+fSocket.on("welcome", (user, newCount) => {
   addMessage(`${user} joined!`);
+  const h3 = room.querySelector("h3");
+  h3.innerText = `Room ${roomName} (${newCount})`;
 });
 
-fSocket.on("bye", (user) => {
+fSocket.on("bye", (user, newCount) => {
   addMessage(`${user} left`);
+  const h3 = room.querySelector("h3");
+  h3.innerText = `Room ${roomName} (${newCount})`;
 });
 
 fSocket.on("new_message", addMessage);
