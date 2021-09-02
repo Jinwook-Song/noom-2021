@@ -21,7 +21,7 @@ async function getCameras() {
   try {
     const devices = await navigator.mediaDevices.enumerateDevices();
     const cameras = devices.filter((device) => device.kind === "videoinput");
-    const currentCamera = myStream.getAudioTracks()[0];
+    const currentCamera = myStream.getVideoTracks()[0];
     cameras.forEach((camera) => {
       const option = document.createElement("option");
       option.value = camera.deviceId;
@@ -98,17 +98,18 @@ camerasSelect.addEventListener("input", handleCameraChange);
 const welcome = document.getElementById("welcome");
 const welcomeForm = welcome.querySelector("form");
 
-async function startMedia() {
+async function initCall() {
   welcome.hidden = true;
   call.hidden = false;
   await getMedia();
   makeConnection();
 }
 
-function handleWelcomeSubmit(event) {
+async function handleWelcomeSubmit(event) {
   event.preventDefault();
   const input = welcomeForm.querySelector("input");
-  fSocket.emit("join_room", input.value, startMedia);
+  await initCall();
+  fSocket.emit("join_room", input.value);
   roomName = input.value;
   input.value = "";
 }
@@ -126,8 +127,17 @@ fSocket.on("welcome", async () => {
 });
 
 // Running on Edge or Firefox (client)
-fSocket.on("offer", (offer) => {
-  console.log(offer);
+fSocket.on("offer", async (offer) => {
+  myPeerConnection.setRemoteDescription(offer);
+  const answer = await myPeerConnection.createAnswer();
+  myPeerConnection.setLocalDescription(answer);
+  console.log("sent the answer");
+  fSocket.emit("answer", answer, roomName);
+});
+
+// Runnig on Chrome (admin)
+fSocket.on("answer", (answer) => {
+  myPeerConnection.setRemoteDescription(answer);
 });
 
 // RTC Code
