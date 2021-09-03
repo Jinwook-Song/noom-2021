@@ -12,6 +12,7 @@ const call = document.getElementById("call");
 call.hidden = true;
 
 let myStream;
+let peerFace;
 let muted = false;
 let cameraOff = false;
 let roomName;
@@ -128,6 +129,7 @@ fSocket.on("welcome", async () => {
 
 // Running on Edge or Firefox (client)
 fSocket.on("offer", async (offer) => {
+  console.log("received the offer");
   myPeerConnection.setRemoteDescription(offer);
   const answer = await myPeerConnection.createAnswer();
   myPeerConnection.setLocalDescription(answer);
@@ -137,14 +139,35 @@ fSocket.on("offer", async (offer) => {
 
 // Runnig on Chrome (admin)
 fSocket.on("answer", (answer) => {
+  console.log("received the answer");
   myPeerConnection.setRemoteDescription(answer);
+});
+
+// All Browser
+fSocket.on("ice", (ice) => {
+  console.log("received ice candidate");
+  myPeerConnection.addIceCandidate(ice);
 });
 
 // RTC Code
 
 function makeConnection() {
   myPeerConnection = new RTCPeerConnection();
+  myPeerConnection.addEventListener("icecandidate", handleIce);
+  myPeerConnection.addEventListener("addstream", handleAddStream);
   myStream
     .getTracks()
     .forEach((track) => myPeerConnection.addTrack(track, myStream));
+}
+
+function handleIce(data) {
+  console.log("got ice candidate");
+  console.log("sent ice candidate");
+  fSocket.emit("ice", data.candidate, roomName);
+}
+
+function handleAddStream(data) {
+  console.log("got an stream from my peer");
+  peerFace = document.getElementById("peerFace");
+  peerFace.srcObject = data.stream;
 }
