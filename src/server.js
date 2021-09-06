@@ -5,6 +5,7 @@ import SocketIO from "socket.io";
 import express from "express";
 
 const app = express();
+const port = 3000;
 
 app.set("view engine", "pug");
 app.set("views", __dirname + "/views");
@@ -32,5 +33,6 @@ wsServer.on("connection", (bSocket) => {
   });
 });
 
-const handleListen = () => console.log(`Listening on http://localhost:4000 ✅`);
-httpServer.listen(4000, handleListen);
+const handleListen = () =>
+  console.log(`Listening on http://localhost:${port} ✅`);
+httpServer.listen(port, handleListen);
