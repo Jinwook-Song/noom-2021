@@ -40,7 +40,3 @@
 - [ ] Improve the CSS
 - [ ] Make a Chat using Data Channels
 - [ ] When a peer leaves the room, remove the stream.
-
-## 🔗 Link
-
-### [Zoom](https://jinwook-song.github.io/nwitter-2021/)
