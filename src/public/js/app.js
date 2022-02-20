@@ -41,12 +41,12 @@ function handleMuteClick() {
   myStream
     .getAudioTracks()
     .forEach((track) => (track.enabled = !track.enabled));
-  if (!muted) {
+  if (muted) {
     muteBtn.innerText = 'Unmute';
-    muted = true;
+    muted = false;
   } else {
     muteBtn.innerText = 'Mute';
-    muted = false;
+    muted = true;
   }
 }
 
@@ -131,7 +131,7 @@ function makeConnection() {
     ],
   });
   myPeerConnection.addEventListener('icecandidate', handleIce);
-  myPeerConnection.addEventListener('addstream', handleAddStream);
+  myPeerConnection.addEventListener('track', handleAddStream);
   // Peer Connection에  Audio, Video Track을 추가
   myStream
     .getTracks()
@@ -149,12 +149,8 @@ fSocket.on('ice', (ice) => {
   myPeerConnection.addIceCandidate(ice);
 });
 
-function handleAddStream(data) {
-  console.log(data, 'from my peer');
-}
-
 // handle strem from peer's
 function handleAddStream(data) {
   const peerFace = document.getElementById('peerFace');
-  peerFace.srcObject = data.stream;
+  peerFace.srcObject = data.streams[0];
 }
