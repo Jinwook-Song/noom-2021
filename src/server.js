@@ -14,13 +14,15 @@ const httpServer = http.createServer(app);
 const wsServer = SocketIO(httpServer);
 
 wsServer.on('connection', (bSocket) => {
-  bSocket.on('join_room', (roomName, done) => {
+  bSocket.on('join_room', (roomName) => {
     bSocket.join(roomName);
-    done();
     bSocket.to(roomName).emit('welcome');
   });
   bSocket.on('offer', (offer, roomName) => {
     bSocket.to(roomName).emit('offer', offer);
+  });
+  bSocket.on('answer', (answer, roomName) => {
+    bSocket.to(roomName).emit('answer', answer);
   });
 });
 
