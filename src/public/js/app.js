@@ -16,9 +16,7 @@ let myPeerConnection;
 
 async function getCameras() {
   try {
-    const devices = await navigator.mediaDevices.enumerateDevices();
-    const cameras = devices.filter((device) => device.kind === 'videoinput');
-    console.log(cameras);
+    await navigator.mediaDevices.enumerateDevices();
   } catch (error) {
     console.log(error);
   }
@@ -32,8 +30,8 @@ async function getMedia() {
     });
     myFace.srcObject = myStream;
     await getCameras();
-  } catch (err) {
-    console.log(err);
+  } catch (error) {
+    console.log(error);
   }
 }
 
@@ -79,10 +77,10 @@ async function initCall() {
 }
 
 async function handleWelcomeSubmit(event) {
-  event.preventDefault();
+  event?.preventDefault();
   const input = welcomeForm.querySelector('input');
   await initCall();
-  fSocket.emit('join_room', input.value);
+  fSocket.emit('join_room', input.value ?? 'test room');
   roomName = input.value;
   input.value = '';
 }
@@ -154,3 +152,6 @@ function handleAddStream(data) {
   const peerFace = document.getElementById('peerFace');
   peerFace.srcObject = data.streams[0];
 }
+
+// Create && Join the room
+handleWelcomeSubmit();
