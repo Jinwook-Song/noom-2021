@@ -24,6 +24,9 @@ wsServer.on('connection', (bSocket) => {
   bSocket.on('answer', (answer, roomName) => {
     bSocket.to(roomName).emit('answer', answer);
   });
+  bSocket.on('ice', (ice, roomName) => {
+    bSocket.to(roomName).emit('ice', ice);
+  });
 });
 
 const handleListen = () => console.log(`✅ Listening on http://localhost:3000`);

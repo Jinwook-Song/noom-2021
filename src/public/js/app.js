@@ -114,10 +114,34 @@ fSocket.on('answer', (answer) => {
 });
 
 // RTC Code
+
 function makeConnection() {
   myPeerConnection = new RTCPeerConnection();
+  myPeerConnection.addEventListener('icecandidate', handleIce);
+  myPeerConnection.addEventListener('addstream', handleAddStream);
   // Peer Connection에  Audio, Video Track을 추가
   myStream
     .getTracks()
     .forEach((track) => myPeerConnection.addTrack(track, myStream));
+}
+
+// send ICE candidate
+function handleIce(ice) {
+  // send ice candidate to the other browser
+  fSocket.emit('ice', ice.candidate, roomName);
+}
+
+// receive ICE candidate
+fSocket.on('ice', (ice) => {
+  myPeerConnection.addIceCandidate(ice);
+});
+
+function handleAddStream(data) {
+  console.log(data, 'from my peer');
+}
+
+// handle strem from peer's
+function handleAddStream(data) {
+  const peerFace = document.getElementById('peerFace');
+  peerFace.srcObject = data.stream;
 }
