@@ -34,21 +34,28 @@ function countRoom(roomName) {
 
 wsServer.on('connection', (bSocket) => {
   bSocket.onAny((event) => {
-    console.log(`Socket Event: ${event}`);
+    // console.log(`Socket Event: ${event}`);
+  });
+  bSocket.on('attempt_join', (roomName) => {
+    if (countRoom(roomName) === 2) {
+      bSocket.emit('reject_join', true);
+    } else {
+      bSocket.emit('reject_join', false);
+    }
   });
 
   bSocket.on('join_room', (roomName) => {
+    if (countRoom(roomName) === 1) {
+    }
     bSocket.join(roomName);
-    bSocket.to(roomName).emit('welcome', bSocket.nickname, countRoom(roomName));
-    wsServer.sockets.emit('room_change', publicRooms());
+    bSocket.to(roomName).emit('welcome', countRoom(roomName));
   });
   bSocket.on('disconnecting', () => {
     bSocket.rooms.forEach((room) =>
-      bSocket.to(room).emit('bye', bSocket.nickname, countRoom(room) - 1)
+      bSocket
+        .to(room)
+        .emit('room_change', bSocket.nickname, countRoom(room) - 1)
     );
-  });
-  bSocket.on('disconnect', () => {
-    wsServer.sockets.emit('room_change', publicRooms());
   });
 
   bSocket.on('offer', (offer, roomName) => {

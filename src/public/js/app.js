@@ -13,6 +13,8 @@ let muted = true;
 let cameraOff = false;
 let roomName;
 let myPeerConnection;
+let countRoom = 0;
+let rejectJoin = false;
 
 async function getCameras() {
   try {
@@ -76,11 +78,24 @@ async function initCall() {
   makeConnection();
 }
 
-async function handleWelcomeSubmit(event) {
+function handleWelcomeSubmit(event) {
   event?.preventDefault();
   const input = welcomeForm.querySelector('input');
+  fSocket.emit('attempt_join', input.value);
+  fSocket.on('reject_join', (reject) => {
+    console.log(reject);
+    if (reject === true) {
+      rejectJoin = true;
+    } else {
+      joinRoom();
+    }
+  });
+}
+
+async function joinRoom() {
+  const input = welcomeForm.querySelector('input');
   await initCall();
-  fSocket.emit('join_room', input.value ?? 'test room');
+  fSocket.emit('join_room', input.value, countRoom);
   roomName = input.value;
   input.value = '';
 }
@@ -89,12 +104,13 @@ welcomeForm.addEventListener('submit', handleWelcomeSubmit);
 
 // Socket Code
 
-fSocket.on('welcome', async () => {
+fSocket.on('welcome', async (countRoom) => {
   // Peer A
   const offer = await myPeerConnection.createOffer();
   myPeerConnection.setLocalDescription(offer);
   // Send offer to Peer B
   fSocket.emit('offer', offer, roomName);
+  countRoom = countRoom;
 });
 
 // Peer B
@@ -114,20 +130,7 @@ fSocket.on('answer', (answer) => {
 // RTC Code
 
 function makeConnection() {
-  myPeerConnection = new RTCPeerConnection({
-    // Free Stun Server provided by google, only for test
-    iceServers: [
-      {
-        urls: [
-          'stun:stun.l.google.com:19302',
-          'stun:stun1.l.google.com:19302',
-          'stun:stun2.l.google.com:19302',
-          'stun:stun3.l.google.com:19302',
-          'stun:stun4.l.google.com:19302',
-        ],
-      },
-    ],
-  });
+  myPeerConnection = new RTCPeerConnection();
   myPeerConnection.addEventListener('icecandidate', handleIce);
   myPeerConnection.addEventListener('track', handleAddStream);
   // Peer Connection에  Audio, Video Track을 추가
@@ -154,4 +157,10 @@ function handleAddStream(data) {
 }
 
 // Create && Join the room
-handleWelcomeSubmit();
+// console.log(countRoom);
+// if (countRoom <= 2) {
+//   handleWelcomeSubmit();
+// }
+// fSocket.on('room_change', (rooms) => {
+//   countRoom = rooms;
+// });
